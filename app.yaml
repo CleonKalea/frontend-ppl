@@ -1,5 +1,5 @@
 runtime: nodejs18
-service: react-vite-ppl
+service: default
 
 handlers:
   - url: /(.*\..+)$

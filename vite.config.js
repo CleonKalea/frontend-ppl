@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://flask-backend-dot-flask-ppl.et.r.appspot.com',
+        target: 'https://flask-ppl.et.r.appspot.com/',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }
