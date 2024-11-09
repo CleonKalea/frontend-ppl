@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
 import './App.css';
 
@@ -13,13 +13,38 @@ import {
   CategoryScale,
 } from 'chart.js';
 
-// Register necessary components for Chart.js
 ChartJS.register(LineElement, PointElement, LinearScale, Title, Tooltip, Legend, CategoryScale);
 
 function App() {
   const [ticker, setTicker] = useState('');
   const [stockData, setStockData] = useState(null);
   const [error, setError] = useState(null);
+  const [stockList, setStockList] = useState([]);
+  useEffect(() => {
+    fetchStockList();
+  }, []);
+
+  const fetchStockList = () => {
+    setError(null);
+    console.log(`Fetching stock name...`);
+    
+    fetch(`${import.meta.env.VITE_API_URL}/stocklist`)
+      .then((response) => {
+        console.log('Response received:', response);
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log('Data received:', data);
+        setStockList(data);
+      })
+      .catch((err) => {
+        console.error('Error fetching stock data:', err);
+        setError(err.message);
+      });
+  };
 
   const fetchStockData = () => {
     setError(null);
@@ -43,7 +68,6 @@ function App() {
       });
   };
 
-  // Prepare data for chart
   const chartData = {
     labels: stockData ? Object.keys(stockData.Close) : [],
     datasets: [
@@ -60,12 +84,17 @@ function App() {
   return (
     <div className="StockData">
       <h1>Stock Information PPL</h1>
-      <input
-        type="text"
+      <select
         value={ticker}
-        onChange={(e) => setTicker(e.target.value)}
-        placeholder="Enter stock ticker (TSLA, AAPL)"
-      />
+        onChange={(e) => setTicker(e.target.value)} 
+        placeholder="Select stock ticker"
+      >
+        <option value="">Select a stock</option>
+        {stockList.map((stock) => (
+          <option key={stock.id_saham} value={stock.kode_saham}>
+            {stock.nama_perusahaan} ({stock.kode_saham})
+          </option>))}
+      </select>
       <button onClick={fetchStockData}>Get Stock Data</button>  
 
       {stockData && (
